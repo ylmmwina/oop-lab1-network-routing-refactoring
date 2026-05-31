@@ -248,3 +248,102 @@ The tests should demonstrate that:
 * network devices are modeled correctly;
 * packet routing works correctly;
 * the refactored architecture preserves the expected behavior of the original project.
+
+## 11. Implemented Tests
+
+This section summarizes the unit tests that were implemented or updated during refactoring.
+
+### 11.1. Hierarchy and Polymorphism Tests
+
+The test suite verifies the class hierarchy of network devices.
+
+Checked behavior:
+
+- `Router` returns `"Router"` as its kind;
+- `Switch` returns `"Switch"` as its kind;
+- `Host` returns `"Host"` as its kind;
+- `Router` can be used as a `NetworkDevice`;
+- `Host` is not treated as a `NetworkDevice` in the current design.
+
+This confirms that inheritance and polymorphism work as expected.
+
+### 11.2. Graph and Dijkstra Tests
+
+The test suite verifies shortest path behavior on a weighted graph.
+
+Checked behavior:
+
+- nodes can be added to a graph;
+- weighted edges can be added;
+- Dijkstra's algorithm finds the shortest path;
+- the selected route is based on total weight, not only on the number of edges.
+
+The tested example verifies that the shortest path from `A` to `C` goes through `B` when this route has a lower total weight.
+
+### 11.3. Network Simulator Device Registry Tests
+
+Additional tests were added for the refactored simulator API.
+
+Checked behavior:
+
+- a newly created simulator contains zero devices;
+- `deviceCount()` returns the correct number of registered devices;
+- `hasDevice()` returns `true` for existing devices;
+- `hasDevice()` returns `false` for missing devices.
+
+These tests verify the new query methods added during refactoring.
+
+### 11.4. Packet Routing Flow Test
+
+The test suite verifies the basic packet routing scenario.
+
+Checked behavior:
+
+- devices can be added to the simulator;
+- devices can be connected with links;
+- a route can be calculated using `DijkstraRouting`;
+- a packet can be sent through the calculated route;
+- transmission time is greater than zero;
+- packet TTL decreases during transmission.
+
+This test confirms that the main simulator behavior still works after refactoring.
+
+### 11.5. Error Handling Tests
+
+Additional tests were added for invalid simulator operations.
+
+Checked behavior:
+
+- adding a null device throws `std::runtime_error`;
+- connecting a known device to an unknown device throws `std::runtime_error`;
+- connecting an unknown device to a known device throws `std::runtime_error`.
+
+These tests improve regression coverage and verify that invalid operations are handled safely.
+
+## 12. Final Testing Summary
+
+The final test suite covers:
+
+- device inheritance and polymorphism;
+- graph pathfinding;
+- Dijkstra shortest path calculation;
+- simulator device registration;
+- packet routing;
+- simulator error handling.
+
+The tests were updated after replacing raw owning pointers with `std::unique_ptr<Device>`.  
+This ensures that the test code follows the same memory ownership model as the refactored production code.
+
+The test target is:
+
+```text
+tests_runner
+```
+
+The test suite is connected to the reusable `network_core` CMake interface library, which means that both the main application and tests use the same core implementation.
+
+## 13. Final Notes
+
+Testing was used as a regression safety mechanism during refactoring.
+
+The main expected result is that the project builds successfully and the unit tests pass after each important structural change.
