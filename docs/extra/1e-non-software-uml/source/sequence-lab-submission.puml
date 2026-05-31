@@ -1,0 +1,33 @@
+@startuml
+title Sequence Diagram - Student Submits Laboratory Work
+
+actor "Student" as Student
+participant "Task Requirements" as Task
+participant "CLion / Editor" as IDE
+participant "Git" as Git
+participant "GitHub" as GitHub
+participant "Teacher" as Teacher
+
+Student -> Task : read requirements
+Student -> IDE : implement work and documentation
+Student -> IDE : create UML diagrams
+Student -> Git : git add
+Student -> Git : git commit
+Git --> Student : commit created
+Student -> GitHub : git push
+GitHub --> Student : repository updated
+Student -> Teacher : submit repository link
+Teacher -> GitHub : open repository
+Teacher -> GitHub : review code, docs, UML images
+Teacher --> Student : grade or comments
+
+alt comments received
+    Student -> IDE : fix issues
+    Student -> Git : commit fixes
+    Student -> GitHub : push fixes
+    Student -> Teacher : resubmit link
+else accepted
+    Student <-- Teacher : work accepted
+end
+
+@enduml

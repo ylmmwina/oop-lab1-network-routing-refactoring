@@ -1,0 +1,42 @@
+@startuml
+title Use Case Diagram - Submitting a Laboratory Work Before Deadline
+
+left to right direction
+
+actor "Student" as Student
+actor "Teacher" as Teacher
+actor "Deadline" as Deadline
+actor "GitHub" as GitHub
+
+rectangle "Laboratory Work Submission Process" {
+    usecase "Read requirements" as UC1
+    usecase "Plan work" as UC2
+    usecase "Implement solution" as UC3
+    usecase "Create diagrams" as UC4
+    usecase "Write documentation" as UC5
+    usecase "Commit changes" as UC6
+    usecase "Push repository" as UC7
+    usecase "Submit work" as UC8
+    usecase "Review submission" as UC9
+}
+
+Student --> UC1
+Student --> UC2
+Student --> UC3
+Student --> UC4
+Student --> UC5
+Student --> UC6
+Student --> UC7
+Student --> UC8
+
+UC8 --> Teacher
+Teacher --> UC9
+
+UC7 --> GitHub
+Deadline --> UC8
+
+UC8 .> UC6 : <<include>>
+UC8 .> UC7 : <<include>>
+UC3 .> UC5 : <<include>>
+
+@enduml

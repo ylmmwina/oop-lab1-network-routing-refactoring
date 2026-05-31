@@ -1,0 +1,41 @@
+@startuml
+title Activity Diagram - Laboratory Work Submission Process
+
+start
+
+:Open laboratory task;
+:Read requirements;
+
+if (Requirements are clear?) then (yes)
+    :Create work plan;
+else (no)
+    :Ask for clarification or reread task;
+    :Create work plan;
+endif
+
+:Prepare project repository;
+:Implement required work;
+:Create UML diagrams;
+:Write documentation;
+:Run checks;
+:Commit changes;
+:Push to GitHub;
+
+if (Deadline has not passed?) then (yes)
+    :Submit repository link;
+    :Wait for review;
+else (no)
+    :Submit late and explain delay;
+endif
+
+if (Teacher accepts work?) then (yes)
+    :Receive grade;
+else (needs fixes)
+    :Fix comments;
+    :Commit and push fixes;
+    :Resubmit work;
+endif
+
+stop
+
+@enduml

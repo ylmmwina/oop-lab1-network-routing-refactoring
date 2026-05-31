@@ -1,0 +1,26 @@
+@startuml
+title State Diagram - Laboratory Work State
+
+[*] --> NotStarted
+
+NotStarted --> RequirementsRead : open task
+RequirementsRead --> Planned : create plan
+Planned --> InProgress : start work
+InProgress --> WaitingForClarification : question appears
+WaitingForClarification --> InProgress : clarification received
+
+InProgress --> Implemented : code or model completed
+Implemented --> Documented : documentation written
+Documented --> Checked : build/tests/diagrams checked
+Checked --> Committed : commit changes
+Committed --> Pushed : push to GitHub
+Pushed --> Submitted : submit link
+
+Submitted --> UnderReview : teacher opens work
+UnderReview --> Accepted : work is correct
+UnderReview --> NeedsFixes : comments received
+NeedsFixes --> InProgress : fix problems
+
+Accepted --> [*]
+
+@enduml
