@@ -28,7 +28,7 @@
   - динамічний поліморфізм: можна зберігати вказівники на GraphAlgorithm<...> і викликати run()
 */
 
-#include "Graph.h"
+#include "network/graph/Graph.h"
 #include <queue>
 #include <stack>
 #include <limits>

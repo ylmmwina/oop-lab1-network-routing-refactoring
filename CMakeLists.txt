@@ -8,14 +8,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(network_core INTERFACE)
 
 target_sources(network_core INTERFACE
-        Graph.h
-        GraphAlgorithms.h
-        Network.h
-        NetworkSimulator.h
+        include/network/graph/Graph.h
+        include/network/graph/GraphAlgorithms.h
+        include/network/model/Network.h
+        include/network/simulator/NetworkSimulator.h
 )
 
 target_include_directories(network_core INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Main application executable.

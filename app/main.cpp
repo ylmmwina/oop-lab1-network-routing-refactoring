@@ -1,7 +1,7 @@
-#include "Graph.h"
-#include "GraphAlgorithms.h"
-#include "Network.h"
-#include "NetworkSimulator.h"
+#include "network/graph/Graph.h"
+#include "network/graph/GraphAlgorithms.h"
+#include "network/model/Network.h"
+#include "network/simulator/NetworkSimulator.h"
 #include <clocale>
 #include <iostream>
 

@@ -32,9 +32,9 @@
   - перша ієрархія — у Network.hpp: Device → Router/Switch/Host
 */
 
-#include "Graph.h"
-#include "GraphAlgorithms.h" // Dijkstra + WeightedEdge
-#include "Network.h"
+#include "network/graph/Graph.h"
+#include "network/graph/GraphAlgorithms.h"
+#include "network/model/Network.h"
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
