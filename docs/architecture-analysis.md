@@ -402,3 +402,138 @@ The original project is a good basis for object-oriented design because it has a
 The main weakness is not the idea of the project, but the architecture around it: file organization, component separation, memory ownership, documentation, and UML modeling.
 
 The planned refactoring should preserve the behavior of the simulator while making the code safer, clearer, more modular, and easier to extend.
+
+## 14. Implemented Refactoring Changes
+
+This section summarizes the refactoring changes that were actually implemented in the project.
+
+### 14.1. Application Entry Point Separation
+
+The original version kept the application entry point in the repository root as `main.cpp`.
+
+The refactored version moves it to:
+
+```text
+app/main.cpp
+```
+
+This separates the console application from the reusable project logic.
+
+### 14.2. Public Header Reorganization
+
+The original version stored public headers in the repository root.
+
+The refactored version moves them into the `include/network/` directory:
+
+```text
+include/network/graph/
+include/network/model/
+include/network/simulator/
+```
+
+This makes the public API structure clearer and closer to common C++ project organization.
+
+### 14.3. Core Library Extraction
+
+The original executable target directly included the main project headers.
+
+The refactored version introduces a reusable CMake interface library:
+
+```text
+network_core
+```
+
+The console application target `network_app` and the test target `tests_runner` both use this core library.
+
+This improves modularity and reusability.
+
+### 14.4. Improved Device Ownership
+
+The original `NetworkSimulator` stored devices using raw owning pointers:
+
+```cpp
+std::map<std::string, Device*> devices_;
+```
+
+The refactored version uses smart pointers:
+
+```cpp
+std::map<std::string, std::unique_ptr<Device>> devices_;
+```
+
+This change makes ownership explicit and removes the need for manual `delete` calls in the simulator destructor.
+
+As a result, the design is safer and closer to modern C++ practices.
+
+### 14.5. Improved Encapsulation and Testability
+
+The simulator now provides query methods:
+
+```cpp
+bool hasDevice(const std::string& name) const;
+std::size_t deviceCount() const;
+```
+
+These methods allow tests and external code to check simulator state without accessing internal containers directly.
+
+This improves encapsulation and supports unit testing.
+
+### 14.6. Updated Unit Tests
+
+The unit tests were updated to use modern C++ memory management with `std::make_unique`.
+
+Additional tests were added for:
+
+- device registry behavior;
+- simulator state queries;
+- adding a null device;
+- connecting unknown devices.
+
+This improves regression testing and helps verify that refactoring did not break existing behavior.
+
+### 14.7. UML Modeling
+
+UML source files were added to:
+
+```text
+docs/uml/source/
+```
+
+Generated UML images were added to:
+
+```text
+docs/uml/images/
+```
+
+The UML model includes both the original and refactored class structure, as well as behavioral and architectural diagrams.
+
+### 14.8. Documentation Support
+
+A `Doxyfile` configuration was added for generating code documentation with Doxygen.
+
+The repository documentation was also expanded with:
+
+- glossary;
+- refactoring plan;
+- testing plan;
+- metrics and comparison plan;
+- UML documentation;
+- architecture analysis.
+
+## 15. Final Architecture Evaluation
+
+The final architecture is more maintainable than the original version.
+
+The main improvements are:
+
+- better separation of concerns;
+- clearer project structure;
+- reusable core component;
+- safer memory ownership;
+- improved testability;
+- more complete documentation;
+- UML-based explanation of structure and behavior.
+
+The project still remains intentionally simple. It was not overcomplicated with unnecessary frameworks or unrelated features.
+
+This follows the KISS and YAGNI principles while still improving the object-oriented design of the system.
