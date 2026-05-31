@@ -1,0 +1,32 @@
+@startuml
+title Deployment Diagram - Development and Execution Environment
+
+node "Developer Machine" {
+    node "CLion IDE" {
+        artifact "network_app.exe" as App
+        artifact "tests_runner.exe" as Tests
+    }
+
+    node "CMake Build Directory" {
+        artifact "CMake cache"
+        artifact "Compiled object files"
+    }
+}
+
+node "GitHub" {
+    artifact "Source code repository"
+    artifact "Markdown documentation"
+    artifact "PlantUML source files"
+}
+
+node "Documentation Output" {
+    artifact "Doxygen HTML documentation"
+    artifact "Generated UML images"
+}
+
+App --> "Source code repository" : built from
+Tests --> "Source code repository" : built from
+"Doxygen HTML documentation" --> "Source code repository" : generated from
+"Generated UML images" --> "PlantUML source files" : generated from
+
+@enduml

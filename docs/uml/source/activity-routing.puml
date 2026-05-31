@@ -1,0 +1,42 @@
+@startuml
+title Activity Diagram - Packet Routing Workflow
+
+start
+
+:Create or load network topology;
+:Add devices;
+:Connect devices with weighted links;
+
+:Create packet;
+:Select routing algorithm;
+
+if (Source and destination exist?) then (yes)
+    :Calculate route using DijkstraRouting;
+else (no)
+    :Throw error;
+    stop
+endif
+
+if (Route found?) then (yes)
+    :Start packet transmission;
+else (no)
+    :Report missing route;
+    stop
+endif
+
+while (Next hop exists and TTL > 0?) is (yes)
+    :Move packet to next device;
+    :Decrease TTL;
+    :Add hop to packet history;
+    :Add link cost to total time;
+endwhile (no)
+
+if (Packet reached destination?) then (yes)
+    :Report successful delivery;
+else (no)
+    :Report incomplete delivery or TTL expiration;
+endif
+
+stop
+
+@enduml

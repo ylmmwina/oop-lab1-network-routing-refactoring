@@ -1,0 +1,37 @@
+@startuml
+title Use Case Diagram - Network Routing Simulator
+
+left to right direction
+
+actor "Student / Developer" as User
+actor "CLion" as IDE
+actor "GitHub" as GitHub
+
+rectangle "Network Routing Simulator" {
+    usecase "Create network topology" as UC1
+    usecase "Add network devices" as UC2
+    usecase "Connect devices with links" as UC3
+    usecase "Calculate route" as UC4
+    usecase "Send packet" as UC5
+    usecase "Save topology" as UC6
+    usecase "Load topology" as UC7
+    usecase "Run unit tests" as UC8
+    usecase "Generate documentation" as UC9
+}
+
+User --> UC1
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+
+UC1 .> UC2 : <<include>>
+UC1 .> UC3 : <<include>>
+UC5 .> UC4 : <<include>>
+
+IDE --> UC8
+GitHub --> UC9
+
+@enduml

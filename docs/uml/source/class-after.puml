@@ -1,0 +1,128 @@
+@startuml
+title Class Diagram - Refactored Network Routing Simulator
+
+skinparam classAttributeIconSize 0
+
+abstract class Device {
+    - id_: int
+    - name_: string
+    + Device(id: int, name: string)
+    + id(): int
+    + name(): string
+    + kind(): string
+}
+
+abstract class NetworkDevice {
+    - mgmtInterface_: string
+    + NetworkDevice(id: int, name: string, mgmt: string)
+    + mgmtInterface(): string
+    + setMgmtInterface(value: string): void
+}
+
+class Router {
+    - routingHint_: string
+    + Router(id: int, name: string, mgmt: string)
+    + kind(): string
+}
+
+class Switch {
+    + Switch(id: int, name: string, mgmt: string)
+    + kind(): string
+}
+
+class Host {
+    - address_: string
+    + Host(id: int, name: string, addr: string)
+    + address(): string
+    + kind(): string
+}
+
+class Link {
+    + latencyMs: double
+    + bandwidthMbps: double
+    + reliability: double
+    + costForBytes(bytes: size_t): double
+}
+
+class Packet {
+    - source_: string
+    - destination_: string
+    - ttl_: int
+    - sizeBytes_: size_t
+    - hops_: vector<string>
+    + src(): string
+    + dst(): string
+    + ttl(): int
+    + size(): size_t
+    + hops(): vector<string>
+    + decTTL(): void
+    + addHop(nodeName: string): void
+}
+
+class "Graph<TNode, TEdge>" as Graph {
+    + addNode(node: TNode): void
+    + addEdge(from: TNode, to: TNode, edge: TEdge): void
+    + hasNode(node: TNode): bool
+    + clear(): void
+    + data(): map
+}
+
+class WeightedEdge {
+    + weight: double
+}
+
+class "Dijkstra<TNode>" as Dijkstra {
+    + dist: map
+    + run(graph, start): void
+    + getPathTo(start, target): vector<TNode>
+}
+
+abstract class RoutingAlgorithm {
+    + route(graph, src, dst, payloadBytes): vector<string>
+}
+
+class DijkstraRouting {
+    + route(graph, src, dst, payloadBytes): vector<string>
+}
+
+class NetworkSimulator {
+    - graph_: Graph<string, Link>
+    - devices_: map<string, unique_ptr<Device>>
+    + hasDevice(name: string): bool
+    + deviceCount(): size_t
+    + addDevice(device: unique_ptr<Device>): void
+    + connect(a: string, b: string, link: Link, bidir: bool): void
+    + buildDemo(): void
+    + findRoute(algo: RoutingAlgorithm, src: string, dst: string, payloadBytes: size_t): vector<string>
+    + sendPacket(path: vector<string>, pkt: Packet): double
+    + saveTopology(filename: string): void
+    + loadTopology(filename: string): void
+    + printDevices(): void
+}
+
+Device <|-- NetworkDevice
+NetworkDevice <|-- Router
+NetworkDevice <|-- Switch
+Device <|-- Host
+
+RoutingAlgorithm <|-- DijkstraRouting
+
+NetworkSimulator *-- "1" Graph
+NetworkSimulator *-- "many" Device : owns via unique_ptr
+NetworkSimulator ..> RoutingAlgorithm : uses
+NetworkSimulator ..> Packet : sends
+NetworkSimulator ..> Link : stores links
+
+DijkstraRouting ..> Dijkstra : uses
+DijkstraRouting ..> WeightedEdge : creates weighted graph
+Graph o-- Link
+
+note right of NetworkSimulator
+Refactoring result:
+- application moved to app/
+- public headers moved to include/network/
+- reusable network_core CMake library added
+- raw owning pointers replaced with std::unique_ptr
+end note
+
+@enduml

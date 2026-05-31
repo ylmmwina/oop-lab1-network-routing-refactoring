@@ -1,0 +1,33 @@
+@startuml
+title Sequence Diagram - Send Packet Through Network
+
+actor "User" as User
+participant "network_app" as App
+participant "NetworkSimulator" as Simulator
+participant "DijkstraRouting" as Routing
+participant "Graph<string, Link>" as Graph
+participant "Packet" as Packet
+
+User -> App : start program
+App -> Simulator : buildDemo()
+App -> Packet : create packet H1 -> H2
+App -> Simulator : findRoute(routing, "H1", "H2", packet.size())
+
+Simulator -> Routing : route(graph, src, dst, payloadBytes)
+Routing -> Graph : read topology data
+Routing -> Routing : build weighted graph
+Routing -> Routing : run Dijkstra
+Routing --> Simulator : route path
+
+App -> Simulator : sendPacket(path, packet)
+
+loop for each hop in path
+    Simulator -> Packet : decTTL()
+    Simulator -> Packet : addHop(node)
+    Simulator -> Graph : get link cost
+end
+
+Simulator --> App : total transmission time
+App --> User : print route and result
+
+@enduml

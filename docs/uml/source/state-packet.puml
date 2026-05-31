@@ -1,0 +1,21 @@
+@startuml
+title State Diagram - Packet Lifecycle
+
+[*] --> Created
+
+Created --> RoutingRequested : findRoute()
+RoutingRequested --> RouteFound : route exists
+RoutingRequested --> RouteNotFound : route missing
+
+RouteNotFound --> [*]
+
+RouteFound --> InTransit : sendPacket()
+
+InTransit --> InTransit : move to next hop / TTL decreases
+InTransit --> Delivered : destination reached
+InTransit --> Expired : TTL <= 0
+
+Delivered --> [*]
+Expired --> [*]
+
+@enduml

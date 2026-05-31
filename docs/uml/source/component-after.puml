@@ -1,0 +1,43 @@
+@startuml
+title Component Diagram - Refactored Architecture
+
+skinparam componentStyle rectangle
+
+component "network_app" as App {
+    [app/main.cpp]
+}
+
+component "network_core" as Core {
+    [Graph]
+    [GraphAlgorithms]
+    [Network Model]
+    [NetworkSimulator]
+}
+
+component "tests_runner" as Tests {
+    [GoogleTest tests]
+}
+
+component "Doxygen Documentation" as Docs
+component "UML Diagrams" as UML
+database "GitHub Repository" as Repo
+
+App --> Core : uses
+Tests --> Core : tests
+Tests --> [GoogleTest] : uses
+Docs --> Core : extracts API docs
+UML --> Core : describes structure and behavior
+
+Repo o-- App
+Repo o-- Core
+Repo o-- Tests
+Repo o-- Docs
+Repo o-- UML
+
+note right of Core
+Core logic was extracted into
+a reusable interface library:
+network_core
+end note
+
+@enduml

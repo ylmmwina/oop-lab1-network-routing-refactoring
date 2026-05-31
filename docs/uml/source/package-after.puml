@@ -1,0 +1,50 @@
+@startuml
+title Package Diagram - Refactored Project Structure
+
+package "app" {
+    class "main.cpp" as Main
+}
+
+package "include.network.graph" {
+    class Graph
+    class GraphAlgorithms
+}
+
+package "include.network.model" {
+    class Device
+    class NetworkDevice
+    class Router
+    class Switch
+    class Host
+    class Link
+    class Packet
+}
+
+package "include.network.simulator" {
+    class RoutingAlgorithm
+    class DijkstraRouting
+    class NetworkSimulator
+}
+
+package "tests" {
+    class test_network
+}
+
+package "docs" {
+    class "Markdown reports" as Markdown
+    class "UML source files" as UML
+    class "Doxygen config" as Doxygen
+}
+
+Main ..> NetworkSimulator
+NetworkSimulator ..> Graph
+NetworkSimulator ..> Device
+NetworkSimulator ..> Link
+NetworkSimulator ..> Packet
+NetworkSimulator ..> RoutingAlgorithm
+DijkstraRouting ..> GraphAlgorithms
+test_network ..> NetworkSimulator
+test_network ..> Device
+test_network ..> Graph
+
+@enduml

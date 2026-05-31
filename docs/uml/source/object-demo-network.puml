@@ -1,0 +1,44 @@
+@startuml
+title Object Diagram - Demo Network Runtime Objects
+
+object "sim: NetworkSimulator" as sim
+object "R1: Router" as R1 {
+    id = 1
+    name = "R1"
+    mgmtInterface = "eth0"
+}
+object "S1: Switch" as S1 {
+    id = 2
+    name = "S1"
+    mgmtInterface = "mgmt0"
+}
+object "H1: Host" as H1 {
+    id = 3
+    name = "H1"
+    address = "10.0.0.1"
+}
+object "H2: Host" as H2 {
+    id = 4
+    name = "H2"
+    address = "10.0.0.2"
+}
+object "packet: Packet" as packet {
+    source = "H1"
+    destination = "H2"
+    ttl = 8
+    sizeBytes = 1500
+}
+
+sim *-- R1
+sim *-- S1
+sim *-- H1
+sim *-- H2
+
+R1 -- S1 : Link latency=0.5ms
+S1 -- H1 : Link latency=1.0ms
+R1 -- H2 : Link latency=3.0ms
+
+packet ..> H1 : source
+packet ..> H2 : destination
+
+@enduml
