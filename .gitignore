@@ -1,12 +1,45 @@
-# Ignore CLion project files
+# CLion / JetBrains
 .idea/
-cmake-build-debug/
-cmake-build-release/
-CMakeFiles/
+*.iml
+
+# CMake build directories
+cmake-build-*/
+build/
+out/
+
+# CMake generated files
 CMakeCache.txt
-*.obj
-*.o
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+
+# Binaries
 *.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.o
+*.obj
+
+# Debug / runtime files
 *.log
-*.user
-*.DS_Store
+*.tmp
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Doxygen generated documentation
+docs/doxygen/html/
+docs/doxygen/latex/
+
+# PlantUML generated temporary files
+*.plantuml.tmp
