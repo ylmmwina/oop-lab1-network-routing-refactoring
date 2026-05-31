@@ -91,3 +91,28 @@ TEST(NetworkSimulatorTest, BuildDemoRouteAndSend) {
     EXPECT_GT(t, 0.0);
     EXPECT_LT(pkt.ttl(), 8); // TTL зменшився
 }
+// ---------- NetworkSimulator error handling tests ----------
+TEST(NetworkSimulatorTest, AddNullDeviceThrowsException) {
+    NetworkSimulator sim;
+
+    EXPECT_THROW(
+        sim.addDevice(nullptr),
+        std::runtime_error
+    );
+}
+
+TEST(NetworkSimulatorTest, ConnectUnknownDeviceThrowsException) {
+    NetworkSimulator sim;
+
+    sim.addDevice(std::make_unique<Router>(1, "R1"));
+
+    EXPECT_THROW(
+        sim.connect("R1", "Unknown", Link{}),
+        std::runtime_error
+    );
+
+    EXPECT_THROW(
+        sim.connect("Unknown", "R1", Link{}),
+        std::runtime_error
+    );
+}
