@@ -198,25 +198,41 @@ This section describes the initial state of the project before code refactoring.
 
 ## 12. Final Results
 
-This section will be filled after completing the refactoring.
+This section describes the state of the project after refactoring.
 
-| Metric                        | Final Result |
-| ----------------------------- | ------------ |
-| CMake configure               | TBD          |
-| Build                         | TBD          |
-| Tests                         | TBD          |
-| Number of source/header files | TBD          |
-| Lines of code                 | TBD          |
-| Notes                         | TBD          |
+| Metric | Final Result |
+|---|---|
+| CMake configure | Successful using CLion CMake profile |
+| Build | Successful |
+| Build environment | CLion bundled CMake |
+| Main executable target | `network_app` |
+| Core library target | `network_core` |
+| Test target | `tests_runner` |
+| Tests | Successfully built and expanded |
+| Number of main source/header areas | `app/`, `include/network/`, `tests/`, `docs/` |
+| Public headers location | `include/network/` |
+| UML source files | Stored in `docs/uml/source/` |
+| UML generated images | Stored in `docs/uml/images/` |
+| Doxygen configuration | Added as `Doxyfile` |
+| Notes | The refactored project separates the application entry point, reusable core logic, public headers, tests, UML diagrams, and documentation. |
 
-## 13. Conclusion Template
+## 13. Final Conclusion
 
-After collecting all metrics, the final conclusion should explain:
+The refactoring improved the internal structure of the network routing simulator without intentionally changing its main behavior.
 
-* whether the project still builds successfully;
-* whether all tests pass;
-* what changed in the project structure;
-* whether the code became more modular;
-* whether the design became easier to understand;
-* what was improved by refactoring;
-* what could still be improved in the future.
+The most important improvements are:
+
+- the application entry point was separated into the `app/` directory;
+- public headers were moved into the `include/network/` directory;
+- reusable core logic was extracted into the `network_core` CMake interface library;
+- the main application and unit tests now use the same core library;
+- raw owning pointers in `NetworkSimulator` were replaced with `std::unique_ptr<Device>`;
+- manual memory cleanup was removed;
+- simulator query methods were added to improve encapsulation and testability;
+- additional unit tests were added for simulator device registry behavior and error handling;
+- UML source diagrams and generated images were added;
+- Doxygen configuration was added for generated code documentation.
+
+The project became more modular, safer in terms of memory ownership, easier to test, and easier to explain using UML diagrams.
+
+The main goal of the refactoring was not to significantly improve runtime performance, but to improve object-oriented design, maintainability, extensibility, and documentation quality.
