@@ -184,16 +184,17 @@ git diff before-refactoring..main --name-status
 
 ## 11. Baseline Results
 
-This section will be filled after running the original version of the project.
+This section describes the initial state of the project before code refactoring.
 
-| Metric                        | Baseline Result |
-| ----------------------------- | --------------- |
-| CMake configure               | TBD             |
-| Build                         | TBD             |
-| Tests                         | TBD             |
-| Number of source/header files | TBD             |
-| Lines of code                 | TBD             |
-| Notes                         | TBD             |
+| Metric | Baseline Result |
+|---|---|
+| CMake configure | Successful using CLion CMake profile |
+| Build | Successful |
+| Build environment | CLion bundled CMake |
+| Tests | To be expanded and re-run during refactoring |
+| Number of main source/header files | 5 |
+| Main project files | `Graph.h`, `GraphAlgorithms.h`, `Network.h`, `NetworkSimulator.h`, `main.cpp` |
+| Notes | The original project builds successfully in CLion. The baseline build result is recorded before changing the source code. |
 
 ## 12. Final Results
 
