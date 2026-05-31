@@ -1,17 +1,22 @@
 cmake_minimum_required(VERSION 3.29)
-project(lab1_sem1)
+project(oop_lab1_network_routing_refactoring)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 1. Додаємо всі файли, які є частиною основної бібліотеки/додатку
-add_executable(lab1_sem1
-        main.cpp
+# Main application executable.
+add_executable(network_app
+        app/main.cpp
         Graph.h
         GraphAlgorithms.h
         Network.h
         NetworkSimulator.h
 )
 
-# 2. Додаємо піддиректорію тестів, яка створить окремий виконуваний файл tests_runner
+# Allow files from app/ to include headers from the project root.
+target_include_directories(network_app PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Unit tests.
 add_subdirectory(tests)
