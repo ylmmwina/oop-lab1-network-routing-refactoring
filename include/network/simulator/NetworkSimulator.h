@@ -25,7 +25,8 @@
   (М28) NetworkSimulator::saveTopology(...) - збереження у файл
   (М29) NetworkSimulator::loadTopology(...) - читання з файлу
   (М30) NetworkSimulator::printDevices() - друк реєстру пристроїв
-  разом: 10
+  (М31) NetworkSimulator::hasDevice(...) - перевірка наявності пристрою
+  (М32) NetworkSimulator::deviceCount() - кількість зареєстрованих пристроїв
 
 ПРИМІТКА:
   - друга ієрархія успадкування: RoutingAlgorithm → DijkstraRouting (динамічний поліморфізм)
@@ -68,6 +69,7 @@ public:
     {
         // будуємо тимчасовий граф з WeightedEdge
         Graph<std::string, WeightedEdge> wg(true);
+
         for (auto& [u, _] : g.data()) {
             wg.addNode(u);
         }
@@ -101,6 +103,16 @@ public:
     NetworkSimulator(NetworkSimulator&&) noexcept = default;
     NetworkSimulator& operator=(NetworkSimulator&&) noexcept = default;
 
+    // (М31) перевірка наявності пристрою за іменем
+    bool hasDevice(const std::string& name) const {
+        return devices_.contains(name);
+    }
+
+    // (М32) кількість зареєстрованих пристроїв
+    std::size_t deviceCount() const {
+        return devices_.size();
+    }
+
     // (М23) реєстрація пристрою в мережі
     void addDevice(std::unique_ptr<Device> device) {
         if (!device) {
@@ -119,6 +131,7 @@ public:
         }
 
         graph_.addEdge(a, b, link);
+
         if (bidir) {
             graph_.addEdge(b, a, link);
         }
@@ -165,6 +178,7 @@ public:
 
             // знайти Link(u->v)
             double edgeCost = 1e9;
+
             auto it = graph_.data().find(u);
             if (it != graph_.data().end()) {
                 for (auto& [to, link] : it->second) {
@@ -183,24 +197,31 @@ public:
         return totalSeconds;
     }
 
-    /* (М28) зберегти топологію у простий текстовий формат:
+    /*
+     (М28) зберегти топологію у простий текстовий формат:
+
      NODES:
      R1 Router
      H1 Host
+
      EDGES:
-     R1 S1 0.5 100 0.999 */
+     R1 S1 0.5 100 0.999
+    */
     void saveTopology(const std::string& filename) const {
         std::ofstream out(filename);
+
         if (!out) {
             throw std::runtime_error("Cannot open file for writing");
         }
 
         out << "NODES:\n";
+
         for (auto& [name, dev] : devices_) {
             out << " " << name << " " << dev->kind() << "\n";
         }
 
         out << "EDGES:\n";
+
         for (auto& [u, vec] : graph_.data()) {
             for (auto& [v, link] : vec) {
                 out << " " << u << " " << v << " "
@@ -217,6 +238,7 @@ public:
         graph_.clear();
 
         std::ifstream in(filename);
+
         if (!in) {
             throw std::runtime_error("Cannot open file for reading");
         }
@@ -242,7 +264,9 @@ public:
             std::istringstream iss(line);
 
             if (sect == NODES) {
-                std::string name, kind;
+                std::string name;
+                std::string kind;
+
                 iss >> name >> kind;
 
                 int id = static_cast<int>(devices_.size()) + 1;
@@ -272,6 +296,7 @@ public:
     // (М30) допоміжний друк реєстру пристроїв
     void printDevices() const {
         std::cout << "Devices:\n";
+
         for (auto& [name, dev] : devices_) {
             std::cout << "  " << std::left << std::setw(6) << name
                       << " : " << dev->kind() << "\n";
