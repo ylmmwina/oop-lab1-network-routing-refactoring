@@ -1,0 +1,24 @@
+@startuml
+title State Diagram - Pull Request Lifecycle
+
+[*] --> Draft
+
+Draft --> Open : mark ready for review
+Open --> ChecksRunning : CI triggered
+ChecksRunning --> ChecksPassed : success
+ChecksRunning --> ChecksFailed : failure
+
+ChecksFailed --> Open : push fixes
+ChecksPassed --> UnderReview : reviewer opens PR
+
+UnderReview --> ChangesRequested : reviewer requests changes
+ChangesRequested --> Open : author pushes updates
+
+UnderReview --> Approved : reviewer approves
+Approved --> Merged : maintainer merges
+Open --> Closed : author or maintainer closes
+
+Merged --> [*]
+Closed --> [*]
+
+@enduml

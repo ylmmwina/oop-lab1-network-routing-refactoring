@@ -1,0 +1,37 @@
+@startuml
+title Sequence Diagram - Pull Request Workflow in GitHub
+
+actor "Developer" as Developer
+participant "Local Git Repository" as LocalGit
+participant "GitHub Repository" as Repo
+participant "Pull Request" as PR
+participant "CI System" as CI
+participant "Reviewer" as Reviewer
+participant "Maintainer" as Maintainer
+
+Developer -> LocalGit : create branch
+Developer -> LocalGit : commit changes
+Developer -> Repo : push branch
+
+Developer -> Repo : open pull request
+Repo -> PR : create pull request
+PR -> CI : trigger checks
+CI --> PR : report status
+
+Reviewer -> PR : review changes
+Reviewer -> PR : approve or request changes
+
+alt changes requested
+    Developer -> LocalGit : fix code
+    Developer -> LocalGit : commit fixes
+    Developer -> Repo : push updates
+    Repo -> PR : update pull request
+    PR -> CI : rerun checks
+    CI --> PR : report status
+else approved
+    Maintainer -> PR : merge pull request
+    PR -> Repo : merge source branch into target branch
+    Repo --> Maintainer : merge completed
+end
+
+@enduml

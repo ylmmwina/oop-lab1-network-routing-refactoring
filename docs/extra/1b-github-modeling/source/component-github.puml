@@ -1,0 +1,39 @@
+@startuml
+title Component Diagram - GitHub Repository Service
+
+skinparam componentStyle rectangle
+
+actor "User" as User
+
+component "Web Interface" as Web
+component "Git API" as GitAPI
+component "Repository Storage" as Storage
+component "Issue Tracker" as Issues
+component "Pull Request Service" as PR
+component "Review Service" as Review
+component "CI Integration" as CI
+component "Notification Service" as Notifications
+
+database "Repository Database" as DB
+database "Git Object Storage" as GitStorage
+
+User --> Web
+User --> GitAPI
+
+Web --> Issues
+Web --> PR
+Web --> Review
+Web --> Notifications
+
+GitAPI --> Storage
+Storage --> GitStorage
+
+PR --> Review
+PR --> CI
+PR --> Storage
+Issues --> DB
+PR --> DB
+Review --> DB
+Notifications --> DB
+
+@enduml

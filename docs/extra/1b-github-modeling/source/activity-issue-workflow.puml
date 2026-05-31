@@ -1,0 +1,33 @@
+@startuml
+title Activity Diagram - GitHub Issue Workflow
+
+start
+
+:User creates issue;
+:Add title and description;
+:Assign labels;
+
+if (Issue is clear?) then (yes)
+    :Assign developer;
+else (no)
+    :Ask for clarification;
+    :Update issue description;
+endif
+
+:Developer investigates problem;
+
+if (Code change required?) then (yes)
+    :Create branch;
+    :Implement fix;
+    :Open pull request;
+    :Review pull request;
+    :Merge pull request;
+else (no)
+    :Add explanation or documentation;
+endif
+
+:Close issue;
+
+stop
+
+@enduml

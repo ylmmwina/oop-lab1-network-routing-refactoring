@@ -1,0 +1,122 @@
+@startuml
+title Class Diagram - GitHub Repository Domain Model
+
+skinparam classAttributeIconSize 0
+
+class User {
+    - id: int
+    - username: string
+    - email: string
+    + createRepository(name: string): Repository
+    + createIssue(title: string): Issue
+    + openPullRequest(branch: Branch): PullRequest
+}
+
+class Repository {
+    - id: int
+    - name: string
+    - visibility: Visibility
+    - defaultBranch: string
+    + addBranch(branch: Branch): void
+    + addCommit(commit: Commit): void
+    + addIssue(issue: Issue): void
+}
+
+class Branch {
+    - name: string
+    - headCommitHash: string
+    + updateHead(commit: Commit): void
+}
+
+class Commit {
+    - hash: string
+    - message: string
+    - timestamp: DateTime
+    + getChangedFiles(): List<FileChange>
+}
+
+class FileChange {
+    - path: string
+    - changeType: ChangeType
+    - linesAdded: int
+    - linesDeleted: int
+}
+
+class Issue {
+    - id: int
+    - title: string
+    - description: string
+    - status: IssueStatus
+    + close(): void
+    + reopen(): void
+}
+
+class PullRequest {
+    - id: int
+    - title: string
+    - status: PullRequestStatus
+    - sourceBranch: string
+    - targetBranch: string
+    + addReview(review: Review): void
+    + merge(): void
+    + close(): void
+}
+
+class Review {
+    - id: int
+    - comment: string
+    - decision: ReviewDecision
+    + approve(): void
+    + requestChanges(): void
+}
+
+class CIWorkflow {
+    - name: string
+    - status: CIStatus
+    + run(): void
+    + cancel(): void
+}
+
+enum Visibility {
+    Public
+    Private
+}
+
+enum IssueStatus {
+    Open
+    Closed
+}
+
+enum PullRequestStatus {
+    Open
+    Merged
+    Closed
+}
+
+enum ReviewDecision {
+    Approved
+    ChangesRequested
+    Commented
+}
+
+enum CIStatus {
+    Pending
+    Success
+    Failed
+    Cancelled
+}
+
+User "1" -- "many" Repository : owns
+Repository "1" -- "many" Branch
+Repository "1" -- "many" Commit
+Repository "1" -- "many" Issue
+Repository "1" -- "many" PullRequest
+Repository "1" -- "many" CIWorkflow
+
+Branch "1" --> "1" Commit : points to
+Commit "1" -- "many" FileChange
+PullRequest "1" -- "many" Review
+PullRequest --> Branch : source
+PullRequest --> Branch : target
+
+@enduml

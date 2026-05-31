@@ -1,0 +1,44 @@
+@startuml
+title Use Case Diagram - GitHub Repository Service
+
+left to right direction
+
+actor "Developer" as Developer
+actor "Reviewer" as Reviewer
+actor "Project Maintainer" as Maintainer
+actor "CI System" as CI
+
+rectangle "GitHub Repository Service" {
+    usecase "Create repository" as UC1
+    usecase "Clone repository" as UC2
+    usecase "Commit changes" as UC3
+    usecase "Push changes" as UC4
+    usecase "Create branch" as UC5
+    usecase "Open pull request" as UC6
+    usecase "Review pull request" as UC7
+    usecase "Merge pull request" as UC8
+    usecase "Create issue" as UC9
+    usecase "Run CI checks" as UC10
+    usecase "View project documentation" as UC11
+}
+
+Developer --> UC1
+Developer --> UC2
+Developer --> UC3
+Developer --> UC4
+Developer --> UC5
+Developer --> UC6
+Developer --> UC9
+Developer --> UC11
+
+Reviewer --> UC7
+Maintainer --> UC8
+Maintainer --> UC9
+CI --> UC10
+
+UC6 .> UC5 : <<include>>
+UC6 .> UC10 : <<include>>
+UC8 .> UC7 : <<include>>
+UC4 .> UC10 : <<include>>
+
+@enduml
