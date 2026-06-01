@@ -1,118 +1,212 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-/*
-КЛАСИ/ТИПИ У ФАЙЛІ:
-  1) template<class TNode, class TEdge> class Graph [КЛАС №1]
+/**
+ * @file Graph.h
+ * @brief Generic graph data structure for the network routing simulator.
+ *
+ * This file contains a template-based graph implementation that can be used
+ * with different node and edge types. In this project it is used to represent
+ * network topology.
+ */
 
-ПОЛЯ (сумарно у цьому файлі):
-  - adjacency (std::map<TNode, std::vector<std::pair<TNode, TEdge>>>) - 1
-  - directed_ (bool) - 1
-  разом у файлі: 2
-
-СПИСОК НЕТРИВІАЛЬНИХ МЕТОДІВ У ЦЬОМУ ФАЙЛІ (рахунок + пояснення):
-  (М1) addNode - додає вершину; створює порожній список суміжності
-  (М2) addEdge - додає орієнтоване/неорієнтоване ребро
-  (М3) removeNode - видаляє вершину та всі ребра, що на неї вказують
-  (М4) removeEdge - видаляє (u→v) і, для неорієнтованого, (v→u)
-  (М5) getNeighbors - повертає копію списку суміжних вершин
-  (М6) printGraph - друкує читабельне текстове уявлення графа
-  (М7) clear - очищає граф
-  (М8) size - кількість вершин (|V|)
-  (М9) hasNode - перевірка наявності вершини
-  разом у файлі: 9
-
-ПРИМІТКИ ПРО ІНКАПСУЛЯЦІЮ:
-  - поля приватні
-  - доступ лише через публічні методи
-*/
-
+#include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <map>
 #include <vector>
-#include <algorithm>
 
+/**
+ * @brief Generic adjacency-list graph.
+ *
+ * The graph stores nodes of type TNode and edge data of type TEdge.
+ * It can work as either a directed or undirected graph.
+ *
+ * @tparam TNode Type used for graph nodes.
+ * @tparam TEdge Type used for edge payload data.
+ */
 template <typename TNode, typename TEdge>
 class Graph {
 private:
-    // список суміжності: для кожної вершини зберігаємо вектор пар (сусід, дані ребра)
+    /**
+     * @brief Adjacency list.
+     *
+     * For each node, stores a list of pairs:
+     * neighbor node and edge data.
+     */
     std::map<TNode, std::vector<std::pair<TNode, TEdge>>> adjacency;
+
+    /**
+     * @brief Defines whether the graph is directed.
+     */
     bool directed_ = true;
 
 public:
+    /**
+     * @brief Creates a graph.
+     * @param directed If true, graph is directed. If false, graph is undirected.
+     */
     explicit Graph(bool directed = true) : directed_(directed) {}
 
-    // (М1) додає вершину: створює запис у мапі, якщо його не було
+    /**
+     * @brief Adds a node to the graph.
+     *
+     * If the node already exists, the graph remains unchanged.
+     *
+     * @param node Node to add.
+     */
     void addNode(const TNode& node) {
-        adjacency[node]; // створює порожній вектор для node, якщо його ще не існує
+        adjacency[node];
     }
 
-    // (М2) додає ребро (u -> v) з даними edge; якщо граф неорієнтований, додаємо дзеркальне ребро (v -> u)
+    /**
+     * @brief Adds an edge between two nodes.
+     *
+     * If the graph is undirected, a reverse edge is also added.
+     * Missing nodes are created automatically.
+     *
+     * @param from Source node.
+     * @param to Destination node.
+     * @param edge Edge data.
+     */
     void addEdge(const TNode& from, const TNode& to, const TEdge& edge) {
         addNode(from);
         addNode(to);
+
         adjacency[from].push_back({to, edge});
+
         if (!directed_) {
             adjacency[to].push_back({from, edge});
         }
     }
 
-    // (М3) видаляє вершину й усі ребра, що на неї вказують
+    /**
+     * @brief Removes a node and all edges pointing to it.
+     * @param node Node to remove.
+     */
     void removeNode(const TNode& node) {
         adjacency.erase(node);
+
         for (auto& [u, neighbors] : adjacency) {
-            neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
-                [&](auto& pair){ return pair.first == node; }), neighbors.end());
+            neighbors.erase(
+                std::remove_if(
+                    neighbors.begin(),
+                    neighbors.end(),
+                    [&](auto& pair) { return pair.first == node; }
+                ),
+                neighbors.end()
+            );
         }
     }
 
-    // (М4) видаляє ребро (u -> v); для неорієнтованого графа — також (v -> u)
+    /**
+     * @brief Removes an edge between two nodes.
+     *
+     * If the graph is undirected, the reverse edge is also removed.
+     *
+     * @param from Source node.
+     * @param to Destination node.
+     */
     void removeEdge(const TNode& from, const TNode& to) {
         if (auto it = adjacency.find(from); it != adjacency.end()) {
             auto& neighbors = it->second;
-            neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
-                [&](auto& p){ return p.first == to; }), neighbors.end());
+
+            neighbors.erase(
+                std::remove_if(
+                    neighbors.begin(),
+                    neighbors.end(),
+                    [&](auto& p) { return p.first == to; }
+                ),
+                neighbors.end()
+            );
         }
+
         if (!directed_) {
             if (auto jt = adjacency.find(to); jt != adjacency.end()) {
                 auto& rev = jt->second;
-                rev.erase(std::remove_if(rev.begin(), rev.end(),
-                    [&](auto& p){ return p.first == from; }), rev.end());
+
+                rev.erase(
+                    std::remove_if(
+                        rev.begin(),
+                        rev.end(),
+                        [&](auto& p) { return p.first == from; }
+                    ),
+                    rev.end()
+                );
             }
         }
     }
 
-    // (М5) повертає список суміжних вершин (копія)
+    /**
+     * @brief Returns neighboring nodes for a given node.
+     *
+     * The method returns only node values, not edge data.
+     *
+     * @param node Node whose neighbors should be returned.
+     * @return Vector of neighboring nodes.
+     */
     std::vector<TNode> getNeighbors(const TNode& node) const {
         std::vector<TNode> result;
+
         if (auto it = adjacency.find(node); it != adjacency.end()) {
             result.reserve(it->second.size());
-            for (auto& pair : it->second) result.push_back(pair.first);
+
+            for (auto& pair : it->second) {
+                result.push_back(pair.first);
+            }
         }
+
         return result;
     }
 
-    // (М6) друк графа у вигляді: U -> (V, edge=...) ...
+    /**
+     * @brief Prints a simple text representation of the graph.
+     *
+     * This method is intended for debugging and demonstration output.
+     */
     void printGraph() const {
         for (auto& [node, neighbors] : adjacency) {
             std::cout << node << " -> ";
+
             for (auto& [n, e] : neighbors) {
                 std::cout << "(" << n << ", edge=" << e << ") ";
             }
+
             std::cout << "\n";
         }
     }
 
-    // (М7) очистити граф
-    void clear() { adjacency.clear(); }
+    /**
+     * @brief Removes all nodes and edges from the graph.
+     */
+    void clear() {
+        adjacency.clear();
+    }
 
-    // (М8) кількість вершин
-    std::size_t size() const { return adjacency.size(); }
+    /**
+     * @brief Returns the number of nodes in the graph.
+     * @return Number of nodes.
+     */
+    std::size_t size() const {
+        return adjacency.size();
+    }
 
-    // (М9) чи існує вершина
-    bool hasNode(const TNode& node) const { return adjacency.count(node) != 0; }
+    /**
+     * @brief Checks whether a node exists in the graph.
+     * @param node Node to check.
+     * @return true if the node exists, otherwise false.
+     */
+    bool hasNode(const TNode& node) const {
+        return adjacency.count(node) != 0;
+    }
 
-    // доступ до сирих даних (тільки читання)
+    /**
+     * @brief Provides read-only access to raw adjacency data.
+     *
+     * This method is used by graph algorithms and routing logic.
+     *
+     * @return Constant reference to the adjacency map.
+     */
     const std::map<TNode, std::vector<std::pair<TNode, TEdge>>>& data() const {
         return adjacency;
     }
