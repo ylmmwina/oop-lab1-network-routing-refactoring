@@ -1,0 +1,31 @@
+@startuml
+title Timing Diagram - Packet TTL During Routing
+
+robust "Packet" as Packet
+concise "Route Progress" as Route
+
+@0
+Packet is Created
+Route is "No route"
+
+@1
+Packet is RoutingRequested
+Route is "Route calculated"
+
+@2
+Packet is InTransit
+Route is "At source"
+
+@3
+Packet is InTransit
+Route is "Hop 1, TTL decreased"
+
+@4
+Packet is InTransit
+Route is "Hop 2, TTL decreased"
+
+@5
+Packet is Delivered
+Route is "Destination reached"
+
+@enduml

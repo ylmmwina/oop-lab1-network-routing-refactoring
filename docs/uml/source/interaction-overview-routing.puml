@@ -1,0 +1,35 @@
+@startuml
+title Interaction Overview Diagram - Routing and Packet Sending
+
+start
+
+:Build or load topology;
+
+if (Topology is valid?) then (yes)
+    :Create packet;
+else (no)
+    :Report topology error;
+    stop
+endif
+
+:Call findRoute();
+
+if (Route exists?) then (yes)
+    :Interaction: DijkstraRouting calculates path;
+else (no)
+    :Report missing route;
+    stop
+endif
+
+:Call sendPacket();
+
+if (TTL is enough?) then (yes)
+    :Interaction: Packet moves through route hops;
+    :Report delivery result;
+else (no)
+    :Report TTL expiration;
+endif
+
+stop
+
+@enduml

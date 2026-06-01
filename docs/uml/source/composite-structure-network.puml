@@ -1,0 +1,39 @@
+@startuml
+title Composite Structure Diagram - NetworkSimulator Internal Parts
+
+class NetworkSimulator {
+}
+
+class "graph_: Graph<string, Link>" as graph
+class "devices_: map<string, unique_ptr<Device>>" as devices
+class "routing: RoutingAlgorithm" as routing
+class "packet: Packet" as packet
+
+class Router
+class Switch
+class Host
+class Link
+
+NetworkSimulator *-- graph : topology storage
+NetworkSimulator *-- devices : device registry
+NetworkSimulator ..> routing : route calculation
+NetworkSimulator ..> packet : packet transmission
+
+devices *-- Router
+devices *-- Switch
+devices *-- Host
+
+graph *-- Link
+
+note right of devices
+Devices are owned by NetworkSimulator
+using std::unique_ptr<Device>.
+end note
+
+note bottom of NetworkSimulator
+The simulator coordinates topology,
+registered devices, routing algorithm,
+and packet transmission.
+end note
+
+@enduml

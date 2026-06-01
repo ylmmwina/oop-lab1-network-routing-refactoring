@@ -1,0 +1,22 @@
+@startuml
+title Communication Diagram - Packet Routing Collaboration
+
+object "app: network_app" as app
+object "sim: NetworkSimulator" as sim
+object "algo: DijkstraRouting" as algo
+object "graph: Graph<string, Link>" as graph
+object "pkt: Packet" as pkt
+
+app --> sim : 1. buildDemo()
+app --> pkt : 2. create packet
+app --> sim : 3. findRoute(algo, src, dst, size)
+sim --> algo : 3.1 route(graph, src, dst, size)
+algo --> graph : 3.1.1 read topology
+algo --> sim : 3.2 return path
+app --> sim : 4. sendPacket(path, pkt)
+sim --> pkt : 4.1 addHop()
+sim --> pkt : 4.2 decTTL()
+sim --> graph : 4.3 get link cost
+sim --> app : 5. return total time
+
+@enduml

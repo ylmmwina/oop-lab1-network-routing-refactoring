@@ -39,6 +39,10 @@ These images are created from PlantUML source files and can be viewed directly o
 | State | `source/state-packet.puml` | `images/state-packet.png` | Shows packet lifecycle |
 | Object | `source/object-demo-network.puml` | `images/object-demo-network.png` | Shows example runtime network objects |
 | Deployment | `source/deployment.puml` | `images/deployment.png` | Shows development, build, and documentation environment |
+| Communication | `source/communication-routing.puml` | `images/communication-routing.png` | Shows object collaboration during packet routing |
+| Composite Structure | `source/composite-structure-network.puml` | `images/composite-structure-network.png` | Shows internal parts of `NetworkSimulator` |
+| Timing | `source/timing-packet-routing.puml` | `images/timing-packet-routing.png` | Shows packet state and route progress over time |
+| Interaction Overview | `source/interaction-overview-routing.puml` | `images/interaction-overview-routing.png` | Combines routing workflow with referenced interactions |
 
 ## Notes
 
