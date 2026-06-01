@@ -1,38 +1,13 @@
 #ifndef NETWORKSIMULATOR_H
 #define NETWORKSIMULATOR_H
 
-/*
-КЛАСИ/ТИПИ У ФАЙЛІ:
- 13) class RoutingAlgorithm (абстрактний) [КЛАС №13]
- 14) class DijkstraRouting : public RoutingAlgorithm [КЛАС №14]
- 15) class NetworkSimulator [КЛАС №15]
-
-ПОЛЯ:
-  - DijkstraRouting: (немає постійних полів)
-  - NetworkSimulator:
-      graph_  (Graph<std::string, Link>) - 1
-      devices_(std::map<std::string, std::unique_ptr<Device>>) - 1
-    разом: 2
-
-НЕТРИВІАЛЬНІ МЕТОДИ:
-  (М21) RoutingAlgorithm::route(...) - абстрактний поліморфний метод
-  (М22) DijkstraRouting::route(...) - обгортка над Дейкстрою з перетворенням Link->WeightedEdge
-  (М23) NetworkSimulator::addDevice(...) - реєстрація пристрою
-  (М24) NetworkSimulator::connect(...) - додавання зв’язку між вузлами
-  (М25) NetworkSimulator::buildDemo(...) - побудова демо-топології
-  (М26) NetworkSimulator::findRoute(...) - пошук шляху між двома вузлами
-  (М27) NetworkSimulator::sendPacket(...) - симуляція передачі пакета hop-by-hop (TTL, час)
-  (М28) NetworkSimulator::saveTopology(...) - збереження у файл
-  (М29) NetworkSimulator::loadTopology(...) - читання з файлу
-  (М30) NetworkSimulator::printDevices() - друк реєстру пристроїв
-  (М31) NetworkSimulator::hasDevice(...) - перевірка наявності пристрою
-  (М32) NetworkSimulator::deviceCount() - кількість зареєстрованих пристроїв
-
-ПРИМІТКА:
-  - друга ієрархія успадкування: RoutingAlgorithm → DijkstraRouting (динамічний поліморфізм)
-  - перша ієрархія — у Network.h: Device → NetworkDevice → Router/Switch, Device → Host
-  - NetworkSimulator використовує std::unique_ptr<Device>, тому володіння пристроями є явним
-*/
+/**
+ * @file NetworkSimulator.h
+ * @brief Routing algorithm abstractions and network simulator implementation.
+ *
+ * This file contains the routing strategy interface, Dijkstra-based routing
+ * implementation, and the main NetworkSimulator class.
+ */
 
 #include "network/graph/Graph.h"
 #include "network/graph/GraphAlgorithms.h"
@@ -44,12 +19,27 @@
 #include <sstream>
 #include <stdexcept>
 
-// інтерфейс алгоритму маршрутизації
+/**
+ * @brief Abstract interface for routing algorithms.
+ *
+ * RoutingAlgorithm represents the Strategy pattern. NetworkSimulator can use
+ * any concrete routing algorithm through this common interface.
+ */
 class RoutingAlgorithm {
 public:
+    /**
+     * @brief Virtual destructor for safe polymorphic use.
+     */
     virtual ~RoutingAlgorithm() = default;
 
-    // (М21) повертає послідовність імен вузлів (path) з src -> dst
+    /**
+     * @brief Calculates a route between two network nodes.
+     * @param g Network topology graph.
+     * @param src Source node name.
+     * @param dst Destination node name.
+     * @param payloadBytes Packet payload size in bytes.
+     * @return Ordered list of node names representing the route.
+     */
     virtual std::vector<std::string> route(
         const Graph<std::string, Link>& g,
         const std::string& src,
@@ -57,17 +47,28 @@ public:
         std::size_t payloadBytes) = 0;
 };
 
-// реалізація на основі Дейкстри
+/**
+ * @brief Routing algorithm implementation based on Dijkstra's algorithm.
+ *
+ * DijkstraRouting converts the network graph with Link objects into a weighted
+ * graph where each edge weight is calculated as transmission cost for a payload.
+ */
 class DijkstraRouting : public RoutingAlgorithm {
 public:
-    // (М22) ми будуємо тимчасовий "зважений" граф, де вага ребра = час передачі payloadBytes
+    /**
+     * @brief Calculates the shortest route using Dijkstra's algorithm.
+     * @param g Network topology graph.
+     * @param src Source node name.
+     * @param dst Destination node name.
+     * @param payloadBytes Packet payload size in bytes.
+     * @return Ordered list of node names representing the route.
+     */
     std::vector<std::string> route(
         const Graph<std::string, Link>& g,
         const std::string& src,
         const std::string& dst,
         std::size_t payloadBytes) override
     {
-        // будуємо тимчасовий граф з WeightedEdge
         Graph<std::string, WeightedEdge> wg(true);
 
         for (auto& [u, _] : g.data()) {
@@ -76,7 +77,7 @@ public:
 
         for (auto& [u, vec] : g.data()) {
             for (auto& [v, link] : vec) {
-                double w = link.costForBytes(payloadBytes); // час у секундах
+                double w = link.costForBytes(payloadBytes);
                 wg.addEdge(u, v, WeightedEdge{w});
             }
         }
@@ -87,33 +88,79 @@ public:
     }
 };
 
-// симулятор мережі
+/**
+ * @brief Main class for building and simulating a network topology.
+ *
+ * NetworkSimulator owns registered devices, stores the topology graph,
+ * connects devices with links, calculates routes, sends packets, and can
+ * save or load topology data.
+ *
+ * Device ownership is represented with std::unique_ptr<Device>, so the
+ * simulator clearly owns all devices registered through addDevice().
+ */
 class NetworkSimulator {
 private:
     Graph<std::string, Link> graph_;
     std::map<std::string, std::unique_ptr<Device>> devices_;
 
 public:
+    /**
+     * @brief Creates an empty network simulator.
+     */
     NetworkSimulator() = default;
+
+    /**
+     * @brief Default destructor.
+     *
+     * Devices are cleaned automatically by std::unique_ptr.
+     */
     ~NetworkSimulator() = default;
 
+    /**
+     * @brief Copying is disabled because the simulator owns devices.
+     */
     NetworkSimulator(const NetworkSimulator&) = delete;
+
+    /**
+     * @brief Copy assignment is disabled because the simulator owns devices.
+     */
     NetworkSimulator& operator=(const NetworkSimulator&) = delete;
 
+    /**
+     * @brief Move construction is allowed.
+     */
     NetworkSimulator(NetworkSimulator&&) noexcept = default;
+
+    /**
+     * @brief Move assignment is allowed.
+     */
     NetworkSimulator& operator=(NetworkSimulator&&) noexcept = default;
 
-    // (М31) перевірка наявності пристрою за іменем
+    /**
+     * @brief Checks whether a device with the given name is registered.
+     * @param name Device name.
+     * @return true if the device exists, otherwise false.
+     */
     bool hasDevice(const std::string& name) const {
         return devices_.contains(name);
     }
 
-    // (М32) кількість зареєстрованих пристроїв
+    /**
+     * @brief Returns the number of registered devices.
+     * @return Number of devices in the simulator.
+     */
     std::size_t deviceCount() const {
         return devices_.size();
     }
 
-    // (М23) реєстрація пристрою в мережі
+    /**
+     * @brief Registers a device in the network.
+     *
+     * The simulator takes ownership of the provided device.
+     *
+     * @param device Unique pointer to a device.
+     * @throws std::runtime_error If the provided pointer is null.
+     */
     void addDevice(std::unique_ptr<Device> device) {
         if (!device) {
             throw std::runtime_error("Null device");
@@ -124,7 +171,14 @@ public:
         devices_[name] = std::move(device);
     }
 
-    // (М24) з’єднання двох вузлів каналом Link (за замовч. — двосторонній)
+    /**
+     * @brief Connects two registered devices with a link.
+     * @param a First device name.
+     * @param b Second device name.
+     * @param link Link parameters.
+     * @param bidir If true, creates a bidirectional connection.
+     * @throws std::runtime_error If one of the devices is unknown.
+     */
     void connect(const std::string& a, const std::string& b, const Link& link, bool bidir = true) {
         if (!graph_.hasNode(a) || !graph_.hasNode(b)) {
             throw std::runtime_error("Unknown node in connect()");
@@ -137,7 +191,12 @@ public:
         }
     }
 
-    // (М25) демо-топологія:  R1 ─ S1 ─ H1,  R1 ─ H2 (довший шлях)
+    /**
+     * @brief Builds a predefined demonstration topology.
+     *
+     * The demo topology contains router R1, switch S1, hosts H1 and H2,
+     * and several weighted links between them.
+     */
     void buildDemo() {
         addDevice(std::make_unique<Router>(1, "R1", "eth0"));
         addDevice(std::make_unique<Switch>(2, "S1", "mgmt0"));
@@ -149,7 +208,14 @@ public:
         connect("R1", "H2", Link{3.0, 20.0, 0.98});
     }
 
-    // (М26) знайти маршрут між src та dst (імена вузлів), використовуючи алгоритм
+    /**
+     * @brief Finds a route between two devices using a routing algorithm.
+     * @param algo Routing algorithm strategy.
+     * @param src Source node name.
+     * @param dst Destination node name.
+     * @param payloadBytes Packet payload size in bytes.
+     * @return Ordered list of node names representing the route.
+     */
     std::vector<std::string> findRoute(
         RoutingAlgorithm& algo,
         const std::string& src,
@@ -159,7 +225,16 @@ public:
         return algo.route(graph_, src, dst, payloadBytes);
     }
 
-    // (М27) відправити пакет за маршрутом (зменшуючи TTL, накопичуючи час)
+    /**
+     * @brief Sends a packet along a calculated route.
+     *
+     * The method decreases packet TTL, records visited nodes, and accumulates
+     * estimated transmission time based on link costs.
+     *
+     * @param path Ordered list of node names.
+     * @param pkt Packet to send.
+     * @return Total estimated transmission time in seconds.
+     */
     double sendPacket(const std::vector<std::string>& path, Packet& pkt) const {
         if (path.size() < 2) {
             return 0.0;
@@ -176,7 +251,6 @@ public:
             const std::string& u = path[i - 1];
             const std::string& v = path[i];
 
-            // знайти Link(u->v)
             double edgeCost = 1e9;
 
             auto it = graph_.data().find(u);
@@ -197,16 +271,11 @@ public:
         return totalSeconds;
     }
 
-    /*
-     (М28) зберегти топологію у простий текстовий формат:
-
-     NODES:
-     R1 Router
-     H1 Host
-
-     EDGES:
-     R1 S1 0.5 100 0.999
-    */
+    /**
+     * @brief Saves the current topology to a text file.
+     * @param filename Output file path.
+     * @throws std::runtime_error If the file cannot be opened.
+     */
     void saveTopology(const std::string& filename) const {
         std::ofstream out(filename);
 
@@ -232,7 +301,11 @@ public:
         }
     }
 
-    // (М29) завантажити топологію з такого самого формату
+    /**
+     * @brief Loads topology from a text file.
+     * @param filename Input file path.
+     * @throws std::runtime_error If the file cannot be opened.
+     */
     void loadTopology(const std::string& filename) {
         devices_.clear();
         graph_.clear();
@@ -293,7 +366,9 @@ public:
         }
     }
 
-    // (М30) допоміжний друк реєстру пристроїв
+    /**
+     * @brief Prints all registered devices to the standard output.
+     */
     void printDevices() const {
         std::cout << "Devices:\n";
 
